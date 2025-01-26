@@ -24,15 +24,11 @@ public class CharacterMove : MonoBehaviour
     private float oldMoveX;
     private float oldMoveY;
 
-    private Sprite ogSprite;
-
     private void Awake(){
         animator = GetComponent<CharacterAnimator>();
         collisionDetector = GetComponent<CollisionDetector>();
 
         NPCController npc = GetComponent<NPCController>();
-
-        ogSprite = GetComponent<SpriteRenderer>().sprite;
 
         if (npc != null){
             npc.OnNPCInteractStart += pauseMovement;
@@ -42,8 +38,10 @@ public class CharacterMove : MonoBehaviour
 
     public IEnumerator Move(Vector2 moveVec, bool isPlayer = false){
 
-        animator.MoveX = Mathf.Clamp(moveVec.x, -1.0f, 1.0f);
-        animator.MoveY = Mathf.Clamp(moveVec.y, -1.0f, 1.0f);
+        if (!stopMoveFlag){
+            animator.MoveX = Mathf.Clamp(moveVec.x, -1.0f, 1.0f);
+            animator.MoveY = Mathf.Clamp(moveVec.y, -1.0f, 1.0f);
+        }
 
         var targetPos = transform.position;
         targetPos.x += moveVec.x;
@@ -53,14 +51,12 @@ public class CharacterMove : MonoBehaviour
             yield break; 
         }
 
-        moving = true;
-
         while ((targetPos - transform.position).sqrMagnitude > float.Epsilon){
 
             while (stopMoveFlag){
-                moving = false;
                 yield break;
             }
+            moving = true;
 
             if (collisionDetector != null){
                 while (collisionDetector.collided){
@@ -117,8 +113,17 @@ public class CharacterMove : MonoBehaviour
         var ydiff = Mathf.Floor(targetPos.y) - Mathf.Floor(transform.position.y);
 
         if (xdiff == 0 || ydiff == 0){
+            // Debug.Log("Look towards called");
+            // Debug.Log(stopMoveFlag);
+            // Debug.Log(moving);
+            // Debug.Log(animator.MoveX);
+            // Debug.Log(animator.MoveY);
+
             animator.MoveX = Mathf.Clamp(xdiff, -1.0f, 1.0f);
-            animator.MoveY = Mathf.Clamp(ydiff, -1.0f, 1.0f);  
+            animator.MoveY = Mathf.Clamp(ydiff, -1.0f, 1.0f); 
+             
+            // Debug.Log(animator.MoveX);
+            // Debug.Log(animator.MoveY);
         }
         else{
             Debug.LogError("How did bro turn diagonal");
@@ -126,6 +131,7 @@ public class CharacterMove : MonoBehaviour
     }
 
     public void restoreOldLookTowards(){
+        // Debug.Log("Restore old look towards called");
         animator.MoveX = oldMoveX;
         animator.MoveY = oldMoveY;
     }
