@@ -21,3 +21,6 @@ Points for future:
                 -- HTTP API would have a higher CPU usage while TCP sockets would have a higher memory usage  
         - However, it is easier to debug, add features and test with HTTP API  
 </pre>
+
+Note to self: Conda just made everything more complicated. If I ever install conda on my device in future, it will be a  
+the reason why the server sockets wouldn't work.

@@ -10,6 +10,12 @@ public class ServerSocketC : MonoBehaviour
     private TcpClient client;
     private NetworkStream stream;
     private Process pythonServerProcess;
+
+    public static ServerSocketC Instance { get; private set; }
+
+    private void Awake(){
+        Instance = this;
+    }
     
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start(){
@@ -36,8 +42,21 @@ public class ServerSocketC : MonoBehaviour
 
             pythonServerProcess.StartInfo.CreateNoWindow = true;
             pythonServerProcess.StartInfo.UseShellExecute = false;
+            // pythonServerProcess.StartInfo.RedirectStandardOutput = true; // Redirect standard output
 
             pythonServerProcess.Start();
+
+            // // Read the standard error output asynchronously
+            // pythonServerProcess.BeginOutputReadLine();
+            // pythonServerProcess.BeginErrorReadLine();
+            // pythonServerProcess.ErrorDataReceived += (sender, args) =>
+            // {
+            //     if (!string.IsNullOrEmpty(args.Data))
+            //     {
+            //         UnityEngine.Debug.LogError("Python server error: " + args.Data);
+            //     }
+            // };
+
             UnityEngine.Debug.Log("Python server started");
         }
         catch (Exception e){

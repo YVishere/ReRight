@@ -23,4 +23,6 @@
 !PythonFiles/
 !PythonFiles/**
 
+__pycache__/
+
 *.meta

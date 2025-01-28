@@ -23,6 +23,8 @@ public class NPCController : MonoBehaviour, Interactable_intf
     private CharacterAnimator animator;
 
     private InteractManager[] interactManagers;
+
+    private bool dialogGenerate = false;
        
     public void Interact(Transform initiator){
         //Disable interact unless the player is in the interaction zone
@@ -66,6 +68,9 @@ public class NPCController : MonoBehaviour, Interactable_intf
         animator = GetComponent<CharacterAnimator>();
         GetComponent<NpcInit>()?.Init();
         interactManagers = GetComponentsInChildren<InteractManager>();
+        if (dialog.isEmpty()){
+            dialogGenerate = true;
+        }
     }
     
     private void Update(){
