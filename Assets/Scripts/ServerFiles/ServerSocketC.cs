@@ -3,6 +3,7 @@ using System;
 using System.Diagnostics;
 using System.Net.Sockets;
 using System.Text;
+using System.Threading.Tasks;
 using System.Xml.Serialization;
 
 public class ServerSocketC : MonoBehaviour
@@ -15,15 +16,13 @@ public class ServerSocketC : MonoBehaviour
 
     private void Awake(){
         Instance = this;
+        startPythonServer();
+        connectToServer();
     }
     
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start(){
-        startPythonServer();
-
-        connectToServer();
         RequestDataFromServer("GetData");
-        ReceiveResponseFromServer();
     }
 
     void OnApplicationQuit(){
@@ -93,13 +92,15 @@ public class ServerSocketC : MonoBehaviour
         byte[] data = Encoding.ASCII.GetBytes(request);
         stream.Write(data, 0, data.Length);
         UnityEngine.Debug.Log("Request sent to server");
+
+        ReceiveResponseFromServer();
     }
 
-    void ReceiveResponseFromServer(){
+    public async Task ReceiveResponseFromServer(){
         if (stream == null) return;
 
         byte[] data = new byte[1024];
-        int bytes = stream.Read(data, 0, data.Length);
+        int bytes = await stream.ReadAsync(data, 0, data.Length);
 
         string response = Encoding.ASCII.GetString(data, 0, bytes);
         UnityEngine.Debug.Log("Response from server: " + response);

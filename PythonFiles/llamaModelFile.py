@@ -3,9 +3,10 @@ from langchain_ollama import OllamaLLM
 from langchain_core.prompts import ChatPromptTemplate
 
 class llamaModel:
-    def init(self):
+    def __init__(self):
         self.device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
         self.model = OllamaLLM(model = "llama3.2:1b", device = self.device)
+        # self.strt = "Hello world"
 
     def invoke(self, sendText, context = None):
         template = """
@@ -24,4 +25,5 @@ class llamaModel:
 
         response = chain.invoke({"sendText": sendText, "context": context})
 
+        # response = self.strt
         return response

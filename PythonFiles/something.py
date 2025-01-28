@@ -4,7 +4,7 @@ import torch
 import time
 
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-
+print(type(device.type), device.type)
 model = OllamaLLM(model = "llama3.2:1b", device = device)
 
 startTime = time.time()

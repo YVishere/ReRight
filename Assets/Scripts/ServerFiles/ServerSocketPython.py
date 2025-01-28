@@ -1,16 +1,16 @@
 import sys
 import os
 
-# # Add the PythonFiles directory to sys.path
-# python_files_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), '../../../PythonFiles'))
-# sys.path.append(python_files_dir)
+# Add the PythonFiles directory to sys.path
+python_files_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), '../../../PythonFiles'))
+sys.path.append(python_files_dir)
 
 try:
-    from PythonFiles.llamaModelFile import llamaModel
+    import llamaModelFile as lmf
 except ImportError as e:
     print(e.msg)
-    # print("Error: llamaModelFile module not found in", python_files_dir)
-    # raise ImportError("llamaModelFile module not found in", python_files_dir)
+    print("Error: llamaModelFile module not found in", python_files_dir)
+    raise ImportError("llamaModelFile module not found in", python_files_dir)
 
 import socket
 
@@ -18,7 +18,7 @@ server_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 server_socket.bind(('localhost', 25001))
 server_socket.listen(1)
 
-# ob = llamaModel()
+ob = lmf.llamaModel()
 
 print("Server is listening for incoming connections")
 
@@ -30,7 +30,8 @@ try:
 
             data = connection.recv(1024).decode()
             if data == "GetData":
-                response = "Hello from the server"
+                #response = "Hallo"
+                response = ob.invoke("You are the server, say hello")
 
             # elif data.find("Invoke:") != -1:
 
