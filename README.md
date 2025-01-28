@@ -5,6 +5,7 @@ To-Do: Create a failsafe for server connection in case the port is occupied
 
 Current Progress:
 <pre>   
+    - Established communication between the LLAMA model and the Unity game
     - Created TCP server files to enable communication between Python and C# scripts  
     - Created custom movement mechanics from scratch  
     - Created a base to implement collision physics  
