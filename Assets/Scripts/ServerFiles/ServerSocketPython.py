@@ -1,16 +1,16 @@
 import sys
 import os
 
-# Add the PythonFiles directory to sys.path
-python_files_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), '../../../PythonFiles'))
-sys.path.append(python_files_dir)
+# # Add the PythonFiles directory to sys.path
+# python_files_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), '../../../PythonFiles'))
+# sys.path.append(python_files_dir)
 
 try:
-    from llamaModelFile import llamaModel
+    from PythonFiles.llamaModelFile import llamaModel
 except ImportError as e:
     print(e.msg)
-    print("Error: llamaModelFile module not found in", python_files_dir)
-    raise ImportError("llamaModelFile module not found in", python_files_dir)
+    # print("Error: llamaModelFile module not found in", python_files_dir)
+    # raise ImportError("llamaModelFile module not found in", python_files_dir)
 
 import socket
 
