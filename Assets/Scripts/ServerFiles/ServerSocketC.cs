@@ -20,10 +20,10 @@ public class ServerSocketC : MonoBehaviour
         StartCoroutine(startSteps());       
     }
 
-    private IEnumerator startSteps(){
+    private IEnumerator startSteps(int retries = 3){
         startPythonServer();
-        yield return new WaitForSeconds(1);
-        connectToServer();
+        yield return new WaitForSeconds(5);
+        connectToServer(3);
         RequestDataFromServer("GetData");
     }
     
@@ -81,7 +81,7 @@ public class ServerSocketC : MonoBehaviour
         }
     }
 
-    void connectToServer(){
+    void connectToServer(int retries){
         try{
             client = new TcpClient("localhost", 25001);
             stream = client.GetStream();
@@ -89,6 +89,12 @@ public class ServerSocketC : MonoBehaviour
         }
         catch (Exception e){
             UnityEngine.Debug.LogError("Error connecting to server: " + e.Message);
+            //Ideally you would need only a second retry but just in case lets go with 3
+            if (retries > 0){
+                UnityEngine.Debug.Log("Retrying connection..." + retries);
+                OnApplicationQuit();
+                StartCoroutine(startSteps(retries - 1));
+            }
         }
     }
 

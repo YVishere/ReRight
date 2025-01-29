@@ -5,6 +5,7 @@ To-Do: Create a failsafe for server connection in case the port is occupied
 
 Current Progress:
 <pre>   
+    - The connection is now reliable after adding delay and retry for the sys.path to be settled
     - Established communication between the LLAMA model and the Unity game
     - Created TCP server files to enable communication between Python and C# scripts  
     - Created custom movement mechanics from scratch  
@@ -14,7 +15,7 @@ Current Progress:
 
 Points for future: 
 <pre> 
-        - The server fails to connect on the first try after restarting my laptop, but connects on the second try. Possibly due to the time needed for sys path to actually be implemented.     
+        - ~~The server fails to connect on the first try after restarting my laptop, but connects on the second try. Possibly due to the time needed for sys path to actually be implemented.~~     
         - Unity messes up directory if a file is added as a component, so I had to use System library to get the   
           absolute path of the current directory and modify it a teensy bit  
         - I have FastAPI server set up as well but its mainly for debugging and purposes because,  
