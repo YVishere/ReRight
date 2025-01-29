@@ -14,6 +14,7 @@ Current Progress:
 
 Points for future: 
 <pre> 
+        - The server fails to connect on the first try after restarting my laptop, but connects on the second try. Possibly due to the time needed for sys path to actually be implemented.     
         - Unity messes up directory if a file is added as a component, so I had to use System library to get the   
           absolute path of the current directory and modify it a teensy bit  
         - I have FastAPI server set up as well but its mainly for debugging and purposes because,  
