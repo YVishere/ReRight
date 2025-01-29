@@ -7,7 +7,7 @@ sys.path.append(python_files_dir)
 
 try:
     import llamaModelFile as lmf
-except ImportError as e:
+except Exception as e:
     print(e.msg)
     print("Error: llamaModelFile module not found in", python_files_dir)
     raise ImportError("llamaModelFile module not found in", python_files_dir)
@@ -30,8 +30,8 @@ try:
 
             data = connection.recv(1024).decode()
             if data == "GetData":
-                #response = "Hallo"
-                response = ob.invoke("You are the server, say hello")
+                # response = "Hallo"
+                response = ob.invoke("You are the server, say hello and something random")
 
             # elif data.find("Invoke:") != -1:
 

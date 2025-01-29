@@ -5,6 +5,7 @@ using System.Net.Sockets;
 using System.Text;
 using System.Threading.Tasks;
 using System.Xml.Serialization;
+using System.Collections;
 
 public class ServerSocketC : MonoBehaviour
 {
@@ -16,14 +17,20 @@ public class ServerSocketC : MonoBehaviour
 
     private void Awake(){
         Instance = this;
-        startPythonServer();
-        connectToServer();
+        StartCoroutine(startSteps());       
     }
-    
-    // Start is called once before the first execution of Update after the MonoBehaviour is created
-    void Start(){
+
+    private IEnumerator startSteps(){
+        startPythonServer();
+        yield return new WaitForSeconds(1);
+        connectToServer();
         RequestDataFromServer("GetData");
     }
+    
+    // // Start is called once before the first execution of Update after the MonoBehaviour is created
+    // void Start(){
+    //     RequestDataFromServer("GetData");
+    // }
 
     void OnApplicationQuit(){
         closeConnection();
@@ -46,7 +53,6 @@ public class ServerSocketC : MonoBehaviour
             pythonServerProcess.Start();
 
             // // Read the standard error output asynchronously
-            // pythonServerProcess.BeginOutputReadLine();
             // pythonServerProcess.BeginErrorReadLine();
             // pythonServerProcess.ErrorDataReceived += (sender, args) =>
             // {
