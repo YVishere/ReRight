@@ -24,13 +24,15 @@ public class DialogManager : MonoBehaviour
     Dialog currentDialog; 
     Action onFinishSpeaking;
 
+    private bool isAI = false;
+
     public bool isShowing { get; private set; }
     private void Awake(){
         Instance = this;
     }
 
     public void HandleUpdate(){
-        if (Input.GetKeyDown(KeyCode.E) && !isTyping){
+        if ((Input.GetKeyDown(KeyCode.E) || (isAI && Input.GetKeyDown(KeyCode.Return))) && !isTyping){
             ++currentLine;
             if (currentLine < currentDialog.Lines.Count){
                 StartCoroutine(TypeDialog(currentDialog.Lines[currentLine], false));
@@ -66,6 +68,8 @@ public class DialogManager : MonoBehaviour
         yield return new WaitForEndOfFrame();
 
         onFinishSpeaking = onFinish;
+
+        isAI = isAi;
 
         currentDialog = dialog;
         if (isAi){
