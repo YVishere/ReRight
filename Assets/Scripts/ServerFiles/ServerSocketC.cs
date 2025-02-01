@@ -6,6 +6,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Xml.Serialization;
 using System.Collections;
+using System.Runtime.CompilerServices;
 
 public class ServerSocketC : MonoBehaviour
 {
@@ -23,8 +24,7 @@ public class ServerSocketC : MonoBehaviour
     private IEnumerator startSteps(int retries = 3){
         startPythonServer();
         yield return new WaitForSeconds(5);
-        connectToServer(3);
-        RequestDataFromServer("GetData");
+        yield return RequestDataFromServer("GetData");
     }
     
     // // Start is called once before the first execution of Update after the MonoBehaviour is created
@@ -81,9 +81,10 @@ public class ServerSocketC : MonoBehaviour
         }
     }
 
-    void connectToServer(int retries){
+    async Task connectToServer(int retries){
         try{
-            client = new TcpClient("localhost", 25001);
+            client = new TcpClient();
+            await client.ConnectAsync("localhost", 25001);
             stream = client.GetStream();
             UnityEngine.Debug.Log("Connected to server");
         }
@@ -99,6 +100,8 @@ public class ServerSocketC : MonoBehaviour
     }
 
     private async Task RequestDataFromServer(string request){
+        await connectToServer(3);
+
         if (stream == null) return;
 
         byte[] data = Encoding.ASCII.GetBytes(request);
@@ -109,7 +112,7 @@ public class ServerSocketC : MonoBehaviour
     }
 
     public async Task<string> NPCRequest(string request){
-        connectToServer(3);
+        await connectToServer(3);
         if (stream == null) return "";
         
         UnityEngine.Debug.Log("Request sent to server: " + request);

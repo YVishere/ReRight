@@ -1,13 +1,11 @@
 An attempt to learn game development from scratch and attaching an LLM to control in game decision.
 
 To-Do: Create a failsafe for server connection in case the port is occupied  
-        Refine the NPC getting dialogs from the server in a lot of ways
+        Connect the NPC to the LLM and have protocols for it to work properly
 
 Refinement needed:
 <pre>
-        - The communication seems to pause the entire game
-        - Player movement is not disabled
-        - Dialog box should appear earlier
+        - The protocol for LLM to NPC communication is a mess
 </pre>
 
 Current Progress:
@@ -22,7 +20,7 @@ Current Progress:
 
 Points for future: 
 <pre> 
-        - Every TCP request requires a new client address
+        - Every TCP request requires a new client address. So make connect to server calls inside the request functions.
         - The server fails to connect on the first try after restarting my laptop, but connects on the second try. Possibly due to the time needed for sys path to actually be implemented.      
         - Unity messes up directory if a file is added as a component, so I had to use System library to get the   
           absolute path of the current directory and modify it a teensy bit  
