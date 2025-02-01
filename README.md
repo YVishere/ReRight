@@ -22,6 +22,7 @@ Current Progress:
 
 Points for future: 
 <pre> 
+        - Every TCP request requires a new client address
         - The server fails to connect on the first try after restarting my laptop, but connects on the second try. Possibly due to the time needed for sys path to actually be implemented.      
         - Unity messes up directory if a file is added as a component, so I had to use System library to get the   
           absolute path of the current directory and modify it a teensy bit  
