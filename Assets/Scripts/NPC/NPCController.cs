@@ -23,8 +23,7 @@ public class NPCController : MonoBehaviour, Interactable_intf
     private CharacterAnimator animator;
 
     private InteractManager[] interactManagers;
-
-    private bool dialogGenerate = false;
+    private bool isAI = false;
        
     public void Interact(Transform initiator){
         //Disable interact unless the player is in the interaction zone
@@ -60,7 +59,12 @@ public class NPCController : MonoBehaviour, Interactable_intf
             state = oldState; //return to whatever the npc was doing before
             OnNPCInteractEnd?.Invoke();
             charMove.restoreOldLookTowards();
-        }));
+        }, isAI));
+    }
+
+    private void dialogBecomesContext(){
+        dialog = new Dialog();
+        dialog.initFirst(LLM_NPCController.Instance.generatePersonality());
     }
 
     private void Awake(){
@@ -68,8 +72,12 @@ public class NPCController : MonoBehaviour, Interactable_intf
         animator = GetComponent<CharacterAnimator>();
         GetComponent<NpcInit>()?.Init();
         interactManagers = GetComponentsInChildren<InteractManager>();
-        if (dialog.isEmpty()){
-            dialogGenerate = true;
+    }
+
+    private void Start(){
+        if(gameObject.CompareTag("NPC_AI")){
+            isAI = true;
+            dialogBecomesContext();
         }
     }
     

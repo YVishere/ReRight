@@ -12,6 +12,19 @@ public class Dialog{
         return false;
     }
 
+    public void initFirst(string line){
+        lines = new List<string>();
+        lines.Add(line);
+    }
+
+    public bool replaceFirst(string line){
+        if (line == null || line.Length == 0){
+            return false;
+        }
+        lines[0] = line;
+        return true;
+    }
+
     public List<string> Lines{
         get {return lines;}
     }

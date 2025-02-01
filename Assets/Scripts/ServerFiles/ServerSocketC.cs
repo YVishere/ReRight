@@ -98,24 +98,37 @@ public class ServerSocketC : MonoBehaviour
         }
     }
 
-    void RequestDataFromServer(string request){
+    private async Task RequestDataFromServer(string request){
         if (stream == null) return;
 
         byte[] data = Encoding.ASCII.GetBytes(request);
         stream.Write(data, 0, data.Length);
         UnityEngine.Debug.Log("Request sent to server");
 
-        ReceiveResponseFromServer();
+        await ReceiveResponseFromServer();
     }
 
-    public async Task ReceiveResponseFromServer(){
-        if (stream == null) return;
+    public async Task<string> NPCRequest(string request){
+        connectToServer(3);
+        if (stream == null) return "";
+        
+        UnityEngine.Debug.Log("Request sent to server: " + request);
+        byte[] data = Encoding.ASCII.GetBytes(request);
+        stream.Write(data, 0, data.Length);
+
+        return await ReceiveResponseFromServer();
+    }
+
+    public async Task<string> ReceiveResponseFromServer(){
+        if (stream == null) return "";
 
         byte[] data = new byte[1024];
+        UnityEngine.Debug.Log("Waiting for response from server...");
         int bytes = await stream.ReadAsync(data, 0, data.Length);
 
         string response = Encoding.ASCII.GetString(data, 0, bytes);
         UnityEngine.Debug.Log("Response from server: " + response);
+        return response;
     }
 
     void closeConnection(){

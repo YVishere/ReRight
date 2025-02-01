@@ -46,7 +46,9 @@ public class PlayerController:MonoBehaviour
         var collider = Physics2D.OverlapCircle(interactPos, 0.3f, GameLayers.i.InteractableLayer);
         if (collider != null){
             charMove.moving = false;
-            collider.GetComponent<Interactable_intf>()?.Interact(transform);
+            if (collider.GetComponent<Interactable_intf>() != null){
+                collider.GetComponent<Interactable_intf>()?.Interact(transform);
+            }
         }
     }
 }

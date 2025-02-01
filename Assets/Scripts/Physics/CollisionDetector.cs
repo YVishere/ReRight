@@ -11,7 +11,7 @@ public class CollisionDetector : MonoBehaviour
     }
 
     public void OnTriggerEnter2D(Collider2D other){
-        if (transform.gameObject.CompareTag("NPC")){
+        if (transform.gameObject.CompareTag("NPC") || transform.gameObject.CompareTag("NPC_AI")){
             collided = checkContinue();
         }
     }
