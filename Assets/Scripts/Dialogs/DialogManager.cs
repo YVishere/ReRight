@@ -32,7 +32,7 @@ public class DialogManager : MonoBehaviour
     }
 
     public void HandleUpdate(){
-        if ((Input.GetKeyDown(KeyCode.E) || (isAI && Input.GetKeyDown(KeyCode.Return))) && !isTyping){
+        if ((Input.GetKeyDown(KeyCode.E) || Input.GetKeyDown(KeyCode.Return)) && !isTyping){
             ++currentLine;
             if (currentLine < currentDialog.Lines.Count){
                 StartCoroutine(TypeDialog(currentDialog.Lines[currentLine], false));
@@ -50,10 +50,11 @@ public class DialogManager : MonoBehaviour
 
     private IEnumerator waitForDialog(Task<string> asyncFunc,Action<string> callback){
         while (!asyncFunc.IsCompleted){
-            Debug.Log("Waiting for dialog...");
+            dialogText.text = "...";
             yield return null;
         }
 
+        userInput.text = "";
         if (asyncFunc.IsFaulted){
             Debug.LogError(asyncFunc.Exception);
         }
@@ -70,6 +71,13 @@ public class DialogManager : MonoBehaviour
         onFinishSpeaking = onFinish;
 
         isAI = isAi;
+        OnShowDialog?.Invoke();
+
+        isShowing = true;
+        dialogBox.SetActive(true);
+        if (isAi){
+            userInput.gameObject.SetActive(true);
+        }
 
         currentDialog = dialog;
         if (isAi){
@@ -77,13 +85,6 @@ public class DialogManager : MonoBehaviour
                 (result) => {
                     dialog.Lines[0] = result;
                 }));
-        }
-        OnShowDialog?.Invoke();
-
-        isShowing = true;
-        dialogBox.SetActive(true);
-        if (isAi){
-            userInput.gameObject.SetActive(true);
         }
         StartCoroutine(TypeDialog(dialog.Lines[0], isAi, onFinish, dialog));
     }
@@ -105,7 +106,7 @@ public class DialogManager : MonoBehaviour
         foreach(var letter in dialog.ToCharArray()){
             dialogText.text += letter;
             yield return new WaitForSeconds(1f/lettersPerSecond);
-            if (Input.GetKeyDown(KeyCode.E)){
+            if (Input.GetKeyDown(KeyCode.E) || Input.GetKeyDown(KeyCode.Return)){
                 dialogText.text = dialog;
                 break;
             }
