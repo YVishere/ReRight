@@ -1,15 +1,21 @@
 An attempt to learn game development from scratch and attaching an LLM to control in game decision.
 
-To-Do: Create a failsafe for server connection in case the port is occupied  
-        Connect the NPC to the LLM and have protocols for it to work properly
+To-Do: Chunkify data sent to LLM  
+
 
 Refinement needed:
 <pre>
         - The protocol for LLM to NPC communication is a mess
+        - Check if closing the connection after every call is a good idea or not based on the overhead
+                --> One possible solution is to have the connection always open and store the client address in NPC global variable
+                --> Client address will be initialised at the start of the game and will be used for every request
+                --> However, I will need to handle closing all connections when the game is closed
+        - Currently I am sending only first 1024 bytes of data, but I need to change that to send chunks of data
 </pre>
 
 Current Progress:
 <pre>   
+    - NPC dialogs now come from the LLM
     - The connection is now reliable after adding delay and retry for the sys.path to be settled
     - Established communication between the LLAMA model and the Unity game
     - Created TCP server files to enable communication between Python and C# scripts  
@@ -20,7 +26,9 @@ Current Progress:
 
 Points for future: 
 <pre> 
+        - Sending more bytes than mentioned in the server does not automatically parse the data.
         - Every TCP request requires a new client address. So make connect to server calls inside the request functions.
+               -- I have to identify if this is caused by the python file closing the connection on its own 
         - The server fails to connect on the first try after restarting my laptop, but connects on the second try. Possibly due to the time needed for sys path to actually be implemented.      
         - Unity messes up directory if a file is added as a component, so I had to use System library to get the   
           absolute path of the current directory and modify it a teensy bit  
