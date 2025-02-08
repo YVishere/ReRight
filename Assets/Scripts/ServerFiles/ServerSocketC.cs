@@ -7,11 +7,10 @@ using System.Threading.Tasks;
 using System.Xml.Serialization;
 using System.Collections;
 using System.Runtime.CompilerServices;
+using System.IO;
 
 public class ServerSocketC : MonoBehaviour
 {
-    private TcpClient client;
-    private NetworkStream stream;
     private Process pythonServerProcess;
 
     public static ServerSocketC Instance { get; private set; }
@@ -25,6 +24,20 @@ public class ServerSocketC : MonoBehaviour
         startPythonServer();
         yield return new WaitForSeconds(5);
         yield return RequestDataFromServer("GetData");
+        /////////////////////////////////////////////////////////////////////
+        ///Debug statement to see how many connections can be made to server
+        /////////////////////////////////////////////////////////////////////
+
+        // for (int i = 0; i <= 10; i++){
+        //     yield return new WaitForSeconds(5);
+        //     Task requestTask = RequestDataFromServer("GetData");
+        //     while (!requestTask.IsCompleted){
+        //         yield return null;
+        //     }
+        //     if (requestTask.IsFaulted){
+        //         UnityEngine.Debug.LogError("Error starting server: " + requestTask.Exception.Message);
+        //     }
+        // }    
     }
     
     // // Start is called once before the first execution of Update after the MonoBehaviour is created
@@ -33,7 +46,6 @@ public class ServerSocketC : MonoBehaviour
     // }
 
     void OnApplicationQuit(){
-        closeConnection();
         stopPythonServer();
     }
 
@@ -81,12 +93,12 @@ public class ServerSocketC : MonoBehaviour
         }
     }
 
-    async Task connectToServer(int retries){
+    async Task<TcpClient> connectToServer(int retries){
         try{
-            client = new TcpClient();
+            TcpClient client = new TcpClient();
             await client.ConnectAsync("localhost", 25001);
-            stream = client.GetStream();
             UnityEngine.Debug.Log("Connected to server");
+            return client;
         }
         catch (Exception e){
             UnityEngine.Debug.LogError("Error connecting to server: " + e.Message);
@@ -97,32 +109,39 @@ public class ServerSocketC : MonoBehaviour
                 StartCoroutine(startSteps(retries - 1));
             }
         }
+        return null;
     }
 
     private async Task RequestDataFromServer(string request){
-        await connectToServer(3);
+        TcpClient client = await connectToServer(3);
 
+        NetworkStream stream = client.GetStream();
         if (stream == null) return;
 
         byte[] data = Encoding.ASCII.GetBytes(request);
         stream.Write(data, 0, data.Length);
         UnityEngine.Debug.Log("Request sent to server");
 
-        await ReceiveResponseFromServer();
+        await ReceiveResponseFromServer(stream, client);
     }
 
     public async Task<string> NPCRequest(string request){
-        await connectToServer(3);
-        if (stream == null) return "";
-        
-        UnityEngine.Debug.Log("Request sent to server: " + request);
-        byte[] data = Encoding.ASCII.GetBytes(request);
-        stream.Write(data, 0, data.Length);
+        TcpClient client = await connectToServer(3);
 
-        return await ReceiveResponseFromServer();
+        NetworkStream stream = client.GetStream();
+        if (stream == null) return "";
+
+        byte[] data = Encoding.ASCII.GetBytes(request);
+
+        //Todo: send data in chunks, I am just sending the first 1024 bytes for simplicity
+        //TCP websocket forcibly closes connection if datalength is greater than whatever i specified in python code
+        stream.Write(data, 0, Math.Min(data.Length, 1023));
+        UnityEngine.Debug.Log("Request sent to server: " + request);
+
+        return await ReceiveResponseFromServer(stream, client);
     }
 
-    public async Task<string> ReceiveResponseFromServer(){
+    public async Task<string> ReceiveResponseFromServer(NetworkStream stream, TcpClient client){
         if (stream == null) return "";
 
         byte[] data = new byte[1024];
@@ -131,10 +150,11 @@ public class ServerSocketC : MonoBehaviour
 
         string response = Encoding.ASCII.GetString(data, 0, bytes);
         UnityEngine.Debug.Log("Response from server: " + response);
+        closeConnection(stream, client);
         return response;
     }
 
-    void closeConnection(){
+    void closeConnection(NetworkStream stream, TcpClient client){
         if (stream != null){
             stream.Close();
         }

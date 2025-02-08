@@ -17,12 +17,28 @@ public class Dialog{
         lines.Add(line);
     }
 
+    public void append(string line){
+        lines.Add(line);
+    }
+
+    public void prepend(string line){
+        lines.Insert(0, line);
+    }
+
     public bool replaceFirst(string line){
         if (line == null || line.Length == 0){
             return false;
         }
         lines[0] = line;
         return true;
+    }
+
+    public int count(){
+        return lines.Count;
+    }
+
+    public string getFirst(){
+        return lines[0];
     }
 
     public List<string> Lines{

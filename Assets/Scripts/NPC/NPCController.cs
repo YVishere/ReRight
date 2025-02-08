@@ -10,6 +10,7 @@ public class NPCController : MonoBehaviour, Interactable_intf
     [SerializeField] Dialog dialog;
     [SerializeField] List<Vector2> walkPoints;
     [SerializeField] float timerBetweenPattern = 1f;
+    [SerializeField] bool ogAI = false;
 
     public enum NPCState{ Idle, Walking, Speaking}
     CharacterMove charMove;
@@ -64,7 +65,7 @@ public class NPCController : MonoBehaviour, Interactable_intf
 
     private void dialogBecomesContext(){
         dialog = new Dialog();
-        dialog.initFirst(LLM_NPCController.Instance.generatePersonality());
+        dialog.initFirst(LLM_NPCController.Instance.generatePersonality(ogAI));
     }
 
     private void Awake(){

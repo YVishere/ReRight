@@ -16,7 +16,7 @@ except Exception as e:
 
 server_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 server_socket.bind(('localhost', 25001))
-server_socket.listen(5)  # Allow up to 5 pending connections
+server_socket.listen(5)  # Allow up to 20 pending connections
 
 ob = lmf.llamaModel()
 
@@ -30,27 +30,32 @@ def handle_client(connection, client_address):
         if data == "GetData":
             response = ob.invoke("You are the server, say hello and something random")
 
-        # elif data.find("Invoke:") != -1:
+        elif data.find("Invoke:::") != -1:
 
-            #     ####
-            #     ##                      0        1            2            3
-            #     ## Encoding scheme: Invoke::: {sendText} ::: Context::: {context}
-            #     ####
-
-            #     split = data.split(":::")
-            #     sendText = split[1]
-
-            #     if data.find("Context:") != -1:
-            #         context = split[3]
-            #     else:
-            #         context = None
+                ####
+                ##                      0        1            2            3
+                ## Encoding scheme: Invoke::: {sendText} ::: Context::: {context}
+                ####
+                try:
+                    split = data.split(":::")
+                    sendText = split[1]
                 
-            #     response = ob.invoke(sendText, context)
+                    if data.find("Context:::") != -1:
+                        context = split[3]
+                    else:
+                        context = None
+                    
+                    response = ob.invoke(sendText, context)
+                except Exception as e:
+                    response = "Error: Context not found"
+                
         else:
             response = "Invalid request"
         
         connection.sendall(response.encode())
         print("Response sent, ", response)
+    except Exception as e:
+        connection.sendall(str(e).encode())
     finally:
         connection.close()
         print("Connection closed")

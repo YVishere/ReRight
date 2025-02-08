@@ -32,6 +32,19 @@ public class DialogManager : MonoBehaviour
     }
 
     public void HandleUpdate(){
+        if (isAI){
+            if (Input.GetKeyDown(KeyCode.Return) && !isTyping){
+                if (userInput.text == ""){
+                    currentLine = 0;
+                    dialogBox.SetActive(false);
+                    userInput.gameObject.SetActive(false);
+                    isShowing = false;
+                    onFinishSpeaking?.Invoke();
+                    OnCloseDialog?.Invoke();
+                }
+            }
+            return;
+        }
         if ((Input.GetKeyDown(KeyCode.E) || Input.GetKeyDown(KeyCode.Return)) && !isTyping){
             ++currentLine;
             if (currentLine < currentDialog.Lines.Count){
@@ -81,9 +94,10 @@ public class DialogManager : MonoBehaviour
 
         currentDialog = dialog;
         if (isAi){
-            yield return StartCoroutine(waitForDialog(LLM_NPCController.Instance.getDialog(dialog.Lines[0]),
+            yield return StartCoroutine(waitForDialog(LLM_NPCController.Instance.getDialog(dialog.Lines),
                 (result) => {
-                    dialog.Lines[0] = result;
+                    dialog.append(result);
+                    dialog.replaceFirst(result); //Replace the first line with the AI response in accordance with displaying algorithm
                 }));
         }
         StartCoroutine(TypeDialog(dialog.Lines[0], isAi, onFinish, dialog));
@@ -111,14 +125,13 @@ public class DialogManager : MonoBehaviour
                 break;
             }
         }
+        isTyping = false;
+        //Halt
         if (isAi){
             yield return StartCoroutine(waitForInput());
             string userText = userInput.text;
-            if (userText != ""){
-                dialogObj.replaceFirst(userText);
-                yield return StartCoroutine(ShowDialog(dialogObj, onFinish, isAi));
-            }
+            dialogObj.append(userText); //Stacking user text
+            yield return StartCoroutine(ShowDialog(dialogObj, onFinish, isAi));
         }
-        isTyping = false;
     }
 }
