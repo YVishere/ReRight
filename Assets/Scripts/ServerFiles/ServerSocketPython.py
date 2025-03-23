@@ -20,6 +20,8 @@ server_socket.listen(5)  # Allow up to 20 pending connections
 
 ob = lmf.llamaModel()
 
+all_clients = set()
+
 print("Server is listening for incoming connections")
 
 def handle_client(connection, client_address):
@@ -53,6 +55,8 @@ def handle_client(connection, client_address):
         print("Response sent, ", response)
     finally:
         print("Done with request")
+
+        all_clients.add(connection)
 
 try:
     while True:
