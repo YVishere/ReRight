@@ -1,14 +1,12 @@
 An attempt to learn game development from scratch and attaching an LLM to control in game decision.
 
 To-Do: Chunkify data sent to LLM  
-Fix Only one msg being sent to python server  
+Further game development
 
 
 Refinement needed:
 <pre>
-        - I can send one messge over my current implementation of TCP but second never goes
-                --> When I was able to send multiple, I was not conserving my old clients.
-                --> I would make fresh clients and streams whenever there was a request and closed them the moment I was done
+        - I am killing all connections from terminal access. Maybe there is a more graceful approach to this.
         - The protocol for LLM to NPC communication is a mess
         - Check if closing the connection after every call is a good idea or not based on the overhead
                 --> One possible solution is to have the connection always open and store the client address in NPC global variable
@@ -19,6 +17,7 @@ Refinement needed:
 
 Current Progress:
 <pre>   
+    - Can resuse the same client connections for multiple requests
     - The connections are alive until the end of application life.  
     - NPC dialogs now come from the LLM
     - The connection is now reliable after adding delay and retry for the sys.path to be settled
@@ -31,7 +30,8 @@ Current Progress:
 
 Points for future: 
 <pre> 
-        -For some reason the connections are only alive if the clients are stored in a variable which does not let them be forgotten. Currently they are stored in a set()
+        -For some reason the connections are only alive if the clients are stored in a variable which does not let them be forgotten. Currently they are stored in a {}
+               -- I have to keep the active connections alive in a while loop so that data could be kept being read from it.
         - Sending more bytes than mentioned in the server does not automatically parse the data.
         - Every TCP request requires a new client address. So make connect to server calls inside the request functions.
                -- I have to identify if this is caused by the python file closing the connection on its own 
