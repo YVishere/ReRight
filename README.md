@@ -1,6 +1,7 @@
 An attempt to learn game development from scratch and attaching an LLM to control in game decision.
 
 To-Do: Chunkify data sent to LLM  
+Fix Only one msg being sent to python server  
 
 
 Refinement needed:
@@ -15,6 +16,7 @@ Refinement needed:
 
 Current Progress:
 <pre>   
+    - The connections are alive until the end of application life.  
     - NPC dialogs now come from the LLM
     - The connection is now reliable after adding delay and retry for the sys.path to be settled
     - Established communication between the LLAMA model and the Unity game
@@ -26,6 +28,7 @@ Current Progress:
 
 Points for future: 
 <pre> 
+        -For some reason the connections are only alive if the clients are stored in a variable which does not let them be forgotten. Currently they are stored in a set()
         - Sending more bytes than mentioned in the server does not automatically parse the data.
         - Every TCP request requires a new client address. So make connect to server calls inside the request functions.
                -- I have to identify if this is caused by the python file closing the connection on its own 
