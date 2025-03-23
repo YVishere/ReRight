@@ -15,8 +15,17 @@ public class Killports : MonoBehaviour
         {
             // Use netstat to find processes using this port
             Process process = new Process();
-            process.StartInfo.FileName = "cmd.exe";
-            process.StartInfo.Arguments = $"/c netstat -ano | findstr :{port}";
+            if (Application.platform == RuntimePlatform.WindowsEditor || 
+                Application.platform == RuntimePlatform.WindowsPlayer) {
+                // Windows netstat command
+                process.StartInfo.FileName = "cmd.exe";
+                process.StartInfo.Arguments = $"/c netstat -ano | findstr :{port}";
+            }
+            else{
+                // Unix netstat command
+                process.StartInfo.FileName = "/bin/bash";
+                process.StartInfo.Arguments = $"-c netstat -ano | grep {port}";
+            }
             process.StartInfo.UseShellExecute = false;
             process.StartInfo.RedirectStandardOutput = true;
             process.StartInfo.CreateNoWindow = true;

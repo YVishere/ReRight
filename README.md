@@ -6,6 +6,9 @@ Fix Only one msg being sent to python server
 
 Refinement needed:
 <pre>
+        - I can send one messge over my current implementation of TCP but second never goes
+                --> When I was able to send multiple, I was not conserving my old clients.
+                --> I would make fresh clients and streams whenever there was a request and closed them the moment I was done
         - The protocol for LLM to NPC communication is a mess
         - Check if closing the connection after every call is a good idea or not based on the overhead
                 --> One possible solution is to have the connection always open and store the client address in NPC global variable
