@@ -20,14 +20,10 @@ server_socket.listen(5)  # Allow up to 20 pending connections
 
 ob = lmf.llamaModel()
 
-all_clients = set()
-
 print("Server is listening for incoming connections")
 
 def handle_client(connection, client_address):
     try:
-        print("Connection from", client_address)
-
         data = connection.recv(1024).decode()
         if data == "GetData":
             response = ob.invoke("You are the server, say hello and something random")
@@ -56,11 +52,10 @@ def handle_client(connection, client_address):
     finally:
         print("Done with request")
 
-        all_clients.add(connection)
-
 try:
     while True:
         connection, client_address = server_socket.accept()
+        print("Connection from", client_address)
         client_thread = threading.Thread(target=handle_client, args=(connection, client_address))
         client_thread.start()
 except KeyboardInterrupt:
