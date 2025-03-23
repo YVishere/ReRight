@@ -52,8 +52,7 @@ def handle_client(connection, client_address):
         connection.sendall(response.encode())
         print("Response sent, ", response)
     finally:
-        connection.close()
-        print("Connection closed")
+        print("Done with request")
 
 try:
     while True:

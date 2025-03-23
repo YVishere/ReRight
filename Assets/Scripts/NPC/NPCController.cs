@@ -61,7 +61,7 @@ public class NPCController : MonoBehaviour, Interactable_intf
         state = NPCState.Speaking;
         charMove.lookTowards(initiator.position);
 
-        StartCoroutine(DialogManager.Instance.ShowDialog(dialog, () => {
+        StartCoroutine(DialogManager.Instance.ShowDialog(dialog, npcID, () => {
             idleTimer = 0f;
             state = oldState; //return to whatever the npc was doing before
             OnNPCInteractEnd?.Invoke();

@@ -8,6 +8,7 @@ using System.Xml.Serialization;
 using System.Collections;
 using System.Runtime.CompilerServices;
 using System.IO;
+using UnityEditor.PackageManager.Requests;
 
 public class ServerSocketC : MonoBehaviour
 {
@@ -129,9 +130,7 @@ public class ServerSocketC : MonoBehaviour
         closeConnection(client);
     }
 
-    public async Task<string> NPCRequest(string request, TcpClient client= null){
-
-        NetworkStream stream = client.GetStream();
+    public async Task<string> NPCRequest(string request, TcpClient client= null, NetworkStream stream = null){
         if (stream == null) return "";
 
         byte[] data = Encoding.ASCII.GetBytes(request);
@@ -142,8 +141,6 @@ public class ServerSocketC : MonoBehaviour
         UnityEngine.Debug.Log("Request sent to server: " + request);
 
         String resp = await ReceiveResponseFromServer(stream, client);
-
-        stream.Close();
         return resp;
     }
 
@@ -168,3 +165,4 @@ public class ServerSocketC : MonoBehaviour
         UnityEngine.Debug.Log("Connection closed");
     }
 }
+

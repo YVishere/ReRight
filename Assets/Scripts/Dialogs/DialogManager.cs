@@ -3,6 +3,7 @@ using System.Collections;
 using System.Threading.Tasks;
 using TMPro;
 using Unity.VisualScripting;
+using UnityEditor;
 using UnityEngine;
 using UnityEngine.InputSystem;
 using UnityEngine.UI;
@@ -76,7 +77,7 @@ public class DialogManager : MonoBehaviour
         }
     }
 
-    public IEnumerator ShowDialog(Dialog dialog, Action onFinish = null, bool isAi = false){
+    public IEnumerator ShowDialog(Dialog dialog, GUID npcID, Action onFinish = null, bool isAi = false){
 
         //Wait a frame
         yield return new WaitForEndOfFrame();
@@ -94,13 +95,13 @@ public class DialogManager : MonoBehaviour
 
         currentDialog = dialog;
         if (isAi){
-            yield return StartCoroutine(waitForDialog(LLM_NPCController.Instance.getDialog(dialog.Lines),
+            yield return StartCoroutine(waitForDialog(LLM_NPCController.Instance.getDialog(dialog.Lines, npcID),
                 (result) => {
                     dialog.append(result);
                     dialog.replaceFirst(result); //Replace the first line with the AI response in accordance with displaying algorithm
                 }));
         }
-        StartCoroutine(TypeDialog(dialog.Lines[0], isAi, onFinish, dialog));
+        StartCoroutine(TypeDialog(dialog.Lines[0], isAi, npcID, onFinish, dialog));
     }
 
     private void clearInputField(){
@@ -113,7 +114,7 @@ public class DialogManager : MonoBehaviour
         }
     }
 
-    public IEnumerator TypeDialog(string dialog, bool isAi, Action onFinish = null, Dialog dialogObj = null){
+    public IEnumerator TypeDialog(string dialog, bool isAi, GUID npcID = default, Action onFinish = null, Dialog dialogObj = null){
         isTyping = true;
         clearInputField();
         dialogText.text = "";
@@ -131,7 +132,7 @@ public class DialogManager : MonoBehaviour
             yield return StartCoroutine(waitForInput());
             string userText = userInput.text;
             dialogObj.append(userText); //Stacking user text
-            yield return StartCoroutine(ShowDialog(dialogObj, onFinish, isAi));
+            yield return StartCoroutine(ShowDialog(dialogObj, npcID, onFinish, isAi));
         }
     }
 }

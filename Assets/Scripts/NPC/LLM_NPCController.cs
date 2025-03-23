@@ -1,9 +1,10 @@
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using Unity.VisualScripting;
+using UnityEditor;
 using UnityEngine;
 
-public class LLM_NPCController : MonoBehaviour, LLM_NPC_intf
+public class LLM_NPCController : MonoBehaviour
 {
     public static LLM_NPCController Instance { get; private set; }
     // Start is called once before the first execution of Update after the MonoBehaviour is created
@@ -30,11 +31,11 @@ public class LLM_NPCController : MonoBehaviour, LLM_NPC_intf
         return formatted;
     }
 
-    public async Task<string> getDialog(List<string> userSpeech){
-        Debug.Log("To be implemented -- LLM_NPCController.getDialog");
+    public async Task<string> getDialog(List<string> userSpeech, GUID npcID){
+        Debug.Log("Still connected to NPC: " + Hasher.Instance.getNPCConnection(npcID).Client.Connected);
         string conversation = reformatDialog(userSpeech);
         try{
-            string dialog = await ServerSocketC.Instance.NPCRequest(conversation);
+            string dialog = await ServerSocketC.Instance.NPCRequest(conversation, Hasher.Instance.getNPCConnection(npcID).Client, Hasher.Instance.getNPCConnection(npcID).Stream);
             return dialog;
         }catch (System.Exception e){
             Debug.Log(e.Message);

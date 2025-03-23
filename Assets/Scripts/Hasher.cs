@@ -7,7 +7,7 @@ using UnityEngine;
 
 public class Hasher : MonoBehaviour
 {
-    Dictionary<GUID, TcpClient> npcHash = new Dictionary<GUID, TcpClient>();
+    Dictionary<GUID, ConnectionInfo> npcHash = new Dictionary<GUID, ConnectionInfo>();
     public static Hasher Instance { get; private set; }
     public void Awake(){
         Instance = this;
@@ -17,7 +17,8 @@ public class Hasher : MonoBehaviour
         return npcHash.ContainsKey(npcID);
     }   
 
-    public TcpClient getNPC(GUID npcID){
+    public ConnectionInfo getNPCConnection(GUID npcID){
+        
         if(containsNPC(npcID)){
             return npcHash[npcID];
         }
@@ -25,13 +26,13 @@ public class Hasher : MonoBehaviour
     }
 
     private void displayHashedNPCs(){
-        foreach (KeyValuePair<GUID, TcpClient> kvp in npcHash){
-            Debug.Log("Key: " + kvp.Key + " Value: " + kvp.Value.Connected);
+        foreach (KeyValuePair<GUID, ConnectionInfo> kvp in npcHash){
+            Debug.Log("Key: " + kvp.Key + " Value: " + kvp.Value.IsConnected);
         }
     }
 
     void OnApplicationQuit(){
-        foreach (KeyValuePair<GUID, TcpClient> kvp in npcHash){
+        foreach (KeyValuePair<GUID, ConnectionInfo> kvp in npcHash){
             kvp.Value.Close();
         }
         npcHash.Clear();
@@ -47,7 +48,13 @@ public class Hasher : MonoBehaviour
 
         if(!containsNPC(npcID)){
             Debug.Log("Hashing NPC with ID: " + npcID);
-            npcHash[npcID] = clientID;
+            Debug.Log("Client connected: " + clientID.Connected);
+            var connInfo = new ConnectionInfo {
+                Client = clientID,
+                Stream = clientID.Connected ? clientID.GetStream() : null
+            };
+            
+            npcHash[npcID] = connInfo;
             return true;
         }
         return false;
