@@ -93,7 +93,7 @@ public class ServerSocketC : MonoBehaviour
         }
     }
 
-    async Task<TcpClient> connectToServer(int retries){
+    public async Task<TcpClient> connectToServer(int retries, bool doAgain = true){
         try{
             TcpClient client = new TcpClient();
             await client.ConnectAsync("localhost", 25001);
@@ -103,7 +103,7 @@ public class ServerSocketC : MonoBehaviour
         catch (Exception e){
             UnityEngine.Debug.LogError("Error connecting to server: " + e.Message);
             //Ideally you would need only a second retry but just in case lets go with 3
-            if (retries > 0){
+            if (retries > 0 && doAgain){
                 UnityEngine.Debug.Log("Retrying connection..." + retries);
                 OnApplicationQuit();
                 StartCoroutine(startSteps(retries - 1));
@@ -123,10 +123,13 @@ public class ServerSocketC : MonoBehaviour
         UnityEngine.Debug.Log("Request sent to server");
 
         await ReceiveResponseFromServer(stream, client);
+
+        stream.Close();
+
+        closeConnection(client);
     }
 
-    public async Task<string> NPCRequest(string request){
-        TcpClient client = await connectToServer(3);
+    public async Task<string> NPCRequest(string request, TcpClient client= null){
 
         NetworkStream stream = client.GetStream();
         if (stream == null) return "";
@@ -138,7 +141,10 @@ public class ServerSocketC : MonoBehaviour
         stream.Write(data, 0, Math.Min(data.Length, 1023));
         UnityEngine.Debug.Log("Request sent to server: " + request);
 
-        return await ReceiveResponseFromServer(stream, client);
+        String resp = await ReceiveResponseFromServer(stream, client);
+
+        stream.Close();
+        return resp;
     }
 
     public async Task<string> ReceiveResponseFromServer(NetworkStream stream, TcpClient client){
@@ -150,14 +156,11 @@ public class ServerSocketC : MonoBehaviour
 
         string response = Encoding.ASCII.GetString(data, 0, bytes);
         UnityEngine.Debug.Log("Response from server: " + response);
-        closeConnection(stream, client);
+
         return response;
     }
 
-    void closeConnection(NetworkStream stream, TcpClient client){
-        if (stream != null){
-            stream.Close();
-        }
+    void closeConnection(TcpClient client){
         if (client!= null){
             client.Close();
         }

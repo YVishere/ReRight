@@ -1,7 +1,10 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Net.Sockets;
+using System.Threading.Tasks;
 using Unity.VisualScripting;
+using UnityEditor;
 using UnityEngine;
 using UnityEngine.TextCore.Text;
 
@@ -25,6 +28,9 @@ public class NPCController : MonoBehaviour, Interactable_intf
 
     private InteractManager[] interactManagers;
     private bool isAI = false;
+
+    //Unique ID for each NPC
+    public GUID npcID{get; private set;}
        
     public void Interact(Transform initiator){
         //Disable interact unless the player is in the interaction zone
@@ -73,13 +79,26 @@ public class NPCController : MonoBehaviour, Interactable_intf
         animator = GetComponent<CharacterAnimator>();
         GetComponent<NpcInit>()?.Init();
         interactManagers = GetComponentsInChildren<InteractManager>();
+        npcID = GUID.Generate();
     }
 
     private void Start(){
         if(gameObject.CompareTag("NPC_AI")){
             isAI = true;
             dialogBecomesContext();
+            establishAndStoreConnection();
         }
+        
+    }
+
+    private async Task establishAndStoreConnection(){
+        Debug.Log("Establishing NPC connection");
+        TcpClient client = await ServerSocketC.Instance.connectToServer(3, false);
+        while (client == null){
+            Debug.Log("Establishing NPC connection");
+            client = await ServerSocketC.Instance.connectToServer(3, false);
+        }
+        Hasher.Instance.HashNPC(npcID, client);
     }
     
     private void Update(){

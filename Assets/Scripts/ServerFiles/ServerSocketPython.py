@@ -36,26 +36,21 @@ def handle_client(connection, client_address):
                 ##                      0        1            2            3
                 ## Encoding scheme: Invoke::: {sendText} ::: Context::: {context}
                 ####
-                try:
-                    split = data.split(":::")
-                    sendText = split[1]
+                split = data.split(":::")
+                sendText = split[1]
+            
+                if data.find("Context:::") != -1:
+                    context = split[3]
+                else:
+                    context = None
                 
-                    if data.find("Context:::") != -1:
-                        context = split[3]
-                    else:
-                        context = None
-                    
-                    response = ob.invoke(sendText, context)
-                except Exception as e:
-                    response = "Error: Context not found"
+                response = ob.invoke(sendText, context)
                 
         else:
             response = "Invalid request"
         
         connection.sendall(response.encode())
         print("Response sent, ", response)
-    except Exception as e:
-        connection.sendall(str(e).encode())
     finally:
         connection.close()
         print("Connection closed")
