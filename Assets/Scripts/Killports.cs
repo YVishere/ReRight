@@ -49,6 +49,19 @@ public class Killports : MonoBehaviour
                 string pidString = match.Groups[1].Value.Trim();
                 if (int.TryParse(pidString, out int pid))
                 {
+                    // Skip PID 0 and other system processes
+                    if (pid == 0 || pid == 4) // PID 4 is the System process on Windows
+                    {
+                        UnityEngine.Debug.Log($"Skipping system process with PID {pid}");
+                        continue;
+                    }
+
+                    // Also good to check against current process
+                    if (pid == Process.GetCurrentProcess().Id)
+                    {
+                        UnityEngine.Debug.Log($"Skipping current process with PID {pid}");
+                        continue;
+                    }
                     try
                     {
                         Process.GetProcessById(pid).Kill();

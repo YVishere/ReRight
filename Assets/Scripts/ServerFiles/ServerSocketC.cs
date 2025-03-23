@@ -98,7 +98,19 @@ public class ServerSocketC : MonoBehaviour
         try{
             TcpClient client = new TcpClient();
             await client.ConnectAsync("localhost", 25001);
-            UnityEngine.Debug.Log("Connected to server");
+        
+            // Configure keep-alive after successful connection
+            client.Client.SetSocketOption(SocketOptionLevel.Socket, SocketOptionName.KeepAlive, true);
+            
+            // Windows-specific keep-alive settings using IOControl
+            byte[] inOptionValues = new byte[12];
+            BitConverter.GetBytes(1).CopyTo(inOptionValues, 0);                // Enable keep-alive (1=on, 0=off)
+            BitConverter.GetBytes(30000).CopyTo(inOptionValues, 4);            // Keep-alive time (30 seconds)
+            BitConverter.GetBytes(5000).CopyTo(inOptionValues, 8);             // Keep-alive interval (5 seconds)
+            
+            client.Client.IOControl(IOControlCode.KeepAliveValues, inOptionValues, null);
+
+            UnityEngine.Debug.Log("Connected to server with keep-alive enabled");
             return client;
         }
         catch (Exception e){
@@ -130,13 +142,14 @@ public class ServerSocketC : MonoBehaviour
         closeConnection(client);
     }
 
-    public async Task<string> NPCRequest(string request, TcpClient client= null, NetworkStream stream = null){
+    public async Task<string> NPCRequest(string request, TcpClient client, NetworkStream stream){
         if (stream == null) return "";
 
         byte[] data = Encoding.ASCII.GetBytes(request);
 
         //Todo: send data in chunks, I am just sending the first 1024 bytes for simplicity
         //TCP websocket forcibly closes connection if datalength is greater than whatever i specified in python code
+        UnityEngine.Debug.Log("Writing data to stream");
         await stream.WriteAsync(data, 0, Math.Min(data.Length, 1023));
         UnityEngine.Debug.Log("Request sent to server: " + request);
 

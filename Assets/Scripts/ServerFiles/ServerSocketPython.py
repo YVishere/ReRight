@@ -20,41 +20,65 @@ server_socket.listen(5)  # Allow up to 20 pending connections
 
 ob = lmf.llamaModel()
 
+active_connections = {}
+
 print("Server is listening for incoming connections")
 
 def handle_client(connection, client_address):
+    active_connections[client_address] = connection
+    
     try:
-        data = connection.recv(1024).decode()
-        if data == "GetData":
-            response = ob.invoke("You are the server, say hello and something random")
-
-        elif data.find("Invoke:::") != -1:
-
-                ####
-                ##                      0        1            2            3
-                ## Encoding scheme: Invoke::: {sendText} ::: Context::: {context}
-                ####
-                split = data.split(":::")
-                sendText = split[1]
-            
-                if data.find("Context:::") != -1:
-                    context = split[3]
+        while True:  # Keep processing requests on this connection
+            try:
+                data = connection.recv(1024).decode()
+                if not data:  # Empty data means client disconnected
+                    print(f"Client {client_address} disconnected")
+                    break
+                    
+                print("Received data: ", data)
+                
+                if data == "GetData":
+                    response = ob.invoke("You are the server, say hello and something random")
+                elif data == "Stop":
+                    response = "Server stopping..."
+                    connection.sendall(response.encode())
+                    break  # Exit the loop to close this connection
+                elif data.find("Invoke:::") != -1:
+                    # Your existing Invoke processing
+                    split = data.split(":::")
+                    sendText = split[1]
+                    
+                    if data.find("Context:::") != -1:
+                        context = split[3]
+                    else:
+                        context = None
+                    
+                    response = ob.invoke(sendText, context)
                 else:
-                    context = None
+                    response = "Invalid request"
                 
-                response = ob.invoke(sendText, context)
+                connection.sendall(response.encode())
+                print("Response sent: ", response)
                 
-        else:
-            response = "Invalid request"
-        
-        connection.sendall(response.encode())
-        print("Response sent, ", response)
+            except socket.timeout:
+                # Optional: Handle timeouts
+                continue
+            except Exception as e:
+                print(f"Error handling request: {e}")
+                break
     finally:
-        print("Done with request")
+        # Clean up when the connection is done
+        print(f"Closing connection from {client_address}")
+        connection.close()
+        if client_address in active_connections:
+            del active_connections[client_address]
 
 try:
     while True:
         connection, client_address = server_socket.accept()
+        if connection in active_connections.values():
+            print("Connection already exists")
+            continue
         print("Connection from", client_address)
         client_thread = threading.Thread(target=handle_client, args=(connection, client_address))
         client_thread.start()
