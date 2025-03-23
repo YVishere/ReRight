@@ -137,7 +137,7 @@ public class ServerSocketC : MonoBehaviour
 
         //Todo: send data in chunks, I am just sending the first 1024 bytes for simplicity
         //TCP websocket forcibly closes connection if datalength is greater than whatever i specified in python code
-        stream.Write(data, 0, Math.Min(data.Length, 1023));
+        await stream.WriteAsync(data, 0, Math.Min(data.Length, 1023));
         UnityEngine.Debug.Log("Request sent to server: " + request);
 
         String resp = await ReceiveResponseFromServer(stream, client);
