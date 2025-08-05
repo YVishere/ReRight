@@ -15,8 +15,10 @@ except Exception as e:
     raise ImportError("llamaModelFile module not found in", python_files_dir)
 
 server_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+# Allow socket reuse to prevent "Address already in use" errors
+server_socket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
 server_socket.bind(('localhost', 25001))
-server_socket.listen(5)  # Allow up to 20 pending connections
+server_socket.listen(5)  # Allow up to 5 pending connections
 
 ob = lmf.llamaModel()
 
@@ -77,14 +79,27 @@ def handle_client(connection, client_address):
 try:
     while True:
         connection, client_address = server_socket.accept()
+        
+        # Check if client already has an active connection
+        if client_address in active_connections:
+            print(f"Connection already exists for {client_address}, closing old connection")
+            active_connections[client_address].close()
+            del active_connections[client_address]
+        
+        # Add new connection
         active_connections[client_address] = connection
-
-        if connection in active_connections.values():
-            print("Connection already exists")
-            continue
         print("Connection from", client_address)
         client_thread = threading.Thread(target=handle_client, args=(connection, client_address))
         client_thread.start()
 except KeyboardInterrupt:
+    print("Server shutting down...")
+    # Close all active connections
+    for client_addr, conn in active_connections.items():
+        try:
+            conn.close()
+            print(f"Closed connection to {client_addr}")
+        except:
+            pass
+    active_connections.clear()
     server_socket.close()
     print("Server stopped")
