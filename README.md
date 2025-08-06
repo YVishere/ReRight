@@ -7,6 +7,7 @@ Further game development
 Refinement needed:
 <pre>
         - I am killing all connections from terminal access. Maybe there is a more graceful approach to this.
+        - I need to add more secuity for TCP commincations because exposing the ports like that seem like a huge vulnerability.
         - The protocol for LLM to NPC communication is a mess
         - Check if closing the connection after every call is a good idea or not based on the overhead
                 --> One possible solution is to have the connection always open and store the client address in NPC global variable
@@ -18,6 +19,7 @@ Refinement needed:
 Current Progress:
 <pre>   
     - Can resuse the same client connections for multiple requests
+    - The ports are killed at the end.
     - The connections are alive until the end of application life.  
     - NPC dialogs now come from the LLM
     - The connection is now reliable after adding delay and retry for the sys.path to be settled
@@ -45,4 +47,4 @@ Points for future:
         - However, it is easier to debug, add features and test with HTTP API  
 </pre>
 
-Note to self: Conda just made everything more complicated. If I ever install conda on my device in future, it will be the reason why the server sockets wouldn't work.
+Note to self: Conda just made everything more complicated. If I ever install conda on my device in future, it will be the reason why the server sockets wouldn't work. Python.Net is a no go. The engine takes too long to stop and the embedded python increases the compile time by a lot.
